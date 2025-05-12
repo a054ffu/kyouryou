@@ -24,8 +24,26 @@ const MapComponent = ({ data, selected, onMarkerClick }) => {
           const [lat, lng] = item.Id.split(',').map((coord) =>
             parseFloat(coord.trim())
           );
+
+          // Rankに応じてアイコンのURLを切り替える
+          const iconUrl = (() => {
+            switch (item.Rank) {
+              case 'Ⅰ':
+                return 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'; // 赤色
+              case 'Ⅱ':
+                return 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'; // 青色
+              case 'Ⅲ':
+                return 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'; // 緑色
+              case 'Ⅳ':
+                return 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'; // 黄色
+              default:
+                return 'http://maps.google.com/mapfiles/ms/icons/purple-dot.png'; // デフォルト色
+            }
+          })();
+
           return (
             <Marker
+              icon={iconUrl} // 動的にアイコンを設定
               key={item._id}
               position={{ lat, lng }}
               onClick={() => handleMarkerClick(item)}
