@@ -1,0 +1,42 @@
+.pulldown {
+  position: relative;
+  display: inline-block;
+  width: 25vw;
+}
+
+.textContainer {
+  border: 1px solid #99f0ca;
+  padding: 8px 16px;
+  background-color: #c9fdd7;
+  cursor: pointer;
+  color: #8c7676;
+}
+
+.text {
+  cursor: pointer;
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #c9fdd7;
+  border: 1px solid #99f0ca;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  width: 25vw;
+
+  /* 親要素の幅に合わせる */
+}
+
+.menuItem {
+  padding: 8px 16px;
+  cursor: pointer;
+  box-sizing: border-box;
+  /* パディングを含めた幅を計算 */
+  color: #8c7676;
+}
+
+.menuItem:hover {
+  background-color: #f1f1f1;
+}

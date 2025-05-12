@@ -1,0 +1,6 @@
+.placeholderLeft {
+  text-align: right;
+}
+.placeholderLeft::placeholder {
+  text-align: left;
+}

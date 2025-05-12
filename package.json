@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "@vis.gl/react-google-maps": "^1.4.2",
+    "axios": "^1.7.9",
+    "file-saver": "^2.0.5",
+    "next": "^15.1.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "xlsx": "^0.18.5"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint --fix"
+  },
+  "devDependencies": {
+    "eslint": "^9.17.0",
+    "eslint-config-next": "15.1.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.4.2"
+  }
+}
