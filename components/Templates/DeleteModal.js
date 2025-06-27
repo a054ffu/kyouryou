@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Modal from '../Organisms/Modal';
 import InputField from '../Atoms/InputField';
 import axios from 'axios';
+import api from '../../utils/api';
 
 const DeleteModal = ({ isOpen, onClose, onCancel, onConfirm }) => {
   const [formData, setFormData] = useState({
@@ -33,7 +34,7 @@ const DeleteModal = ({ isOpen, onClose, onCancel, onConfirm }) => {
     const ids = Object.values(formData).filter((id) => id !== '');
     for (const id of ids) {
       try {
-        await axios.delete(`/deleteopendata/${id}`);
+        await api.delete(`/deleteopendata/${id}`); // axiosをapiに変更
       } catch (error) {
         console.error(`Failed to delete ID: ${id}`, error);
       }
