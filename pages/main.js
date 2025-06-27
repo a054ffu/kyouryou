@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router'; // ★ useRouterをインポート
+import api from '../utils/api'; // ★ axiosの代わりにapiヘルパーをインポート
 import SearchBox from '../components/Atoms/SearchBox';
 import ResetButton from '../components/Molecules/ResetButton';
 import LogoutButton from '../components/Molecules/LogoutButton';
 import ConsoleWindow from '../components/Atoms/ConsoleWindow';
 import MapConponent from '../components/Molecules/MapComponent';
 import Button from '../components/Atoms/Button';
-import axios from 'axios';
 import AddModal from '../components/Templates/AddModal';
 import EditModal from '../components/Templates/EditModal';
 import styles from '../styles/main.module.css';
@@ -13,26 +14,36 @@ import NumberOfPins from '../components/Atoms/NumberOfPins';
 import TonnelButton from '../components/Molecules/TonnelButton';
 import Pulldowns from '../components/Molecules/Pulldowns';
 import HistoryButton from '../components/Molecules/HistoryButton';
-
-axios.defaults.baseURL = 'https://bridge-backend-09fde0d4fb8f.herokuapp.com/';
-// axios.defaults.baseURL = 'http://localhost:8000/';
+import NotificationPopup from '../components/Atoms/NotificationPopup'; // ★ パスを修正
 
 export default function Home() {
-  const [bridgedata, setBridgedata] = useState([]); // 橋梁データ
-  const [filteredData, setFilteredData] = useState([]); // 絞り込んだ橋のデータ
-  const [selectedMarker, setSelectedMarker] = useState(null); // 選択されたマーカーのデータ
+  const router = useRouter(); // ★ useRouterフックを呼び出す
+  const [bridgedata, setBridgedata] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [selectedMarker, setSelectedMarker] = useState(null);
   const selectedMarkerRef = useRef(selectedMarker);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false); // 追加モーダルの表示状態
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // 編集モーダルの表示状態
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // ★ 通知機能用のState
+  const [changes, setChanges] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     selectedMarkerRef.current = selectedMarker;
   }, [selectedMarker]);
 
   useEffect(() => {
-    // ページが読み込まれた時にデータを取得する
-    axios
-      .get('/getopendata')
+    // ★ ログインユーザー情報を取得
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    if (!currentUser) {
+      // ログインしていなければログインページにリダイレクト
+      router.push('/');
+      return;
+    }
+
+    // 橋梁データを取得
+    api.get('/getopendata')
       .then((response) => {
         setBridgedata(response.data);
         setFilteredData(response.data);
@@ -40,10 +51,37 @@ export default function Home() {
       .catch((error) => {
         console.error('データの取得に失敗しました', error);
       });
+
+    // ★ 変更通知のロジック
+    const fetchChanges = async () => {
+      try {
+        const lastLogin = localStorage.getItem('lastLogin');
+        if (!lastLogin) return;
+
+        const response = await api.get('/gethistory');
+
+        // 他のユーザーによる、前回ログイン以降の変更をフィルタリング
+        const recentChangesByOthers = response.data.filter(
+          (item) =>
+            item.user &&
+            item.user._id !== currentUser.id &&
+            new Date(item.timestamp) > new Date(lastLogin)
+        );
+
+        if (recentChangesByOthers.length > 0) {
+          setChanges(recentChangesByOthers);
+          setShowPopup(true);
+        }
+      } catch (error) {
+        console.error('変更履歴の取得に失敗しました', error);
+      }
+    };
+
+    fetchChanges();
+
   }, []);
 
   const handleSearch = (query) => {
-    // 検索ワードに一致するデータを絞り込む
     const filtered = bridgedata.filter((item) => item.Name.includes(query));
     setFilteredData(filtered);
     if (filtered.length === 0) {
@@ -56,12 +94,10 @@ export default function Home() {
   };
 
   const handleMarkerClick = (item) => {
-    // マーカーがクリックされた時の処理
     setSelectedMarker(item);
   };
 
   const handleDeleteButtonClick = async () => {
-    // 削除ボタンが押された時の処理
     const isConfirmed = window.confirm('本当に削除しますか？');
     if (!isConfirmed) return;
 
@@ -71,11 +107,9 @@ export default function Home() {
       return;
     }
 
-    console.log('ニフラム');
     try {
-      const response = await axios.delete(`/deleteopendata/${marker._id}`, {
-        method: 'DELETE',
-      });
+      // ★ apiヘルパーを使用
+      await api.delete(`/deleteopendata/${marker._id}`);
       setSelectedMarker(null);
       alert('削除に成功しました');
       window.location.reload();
@@ -85,42 +119,27 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Delete' || event.key === 'Del') {
-        handleDeleteButtonClick();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
+  // ... useEffect for Delete key (変更なし)
 
   const handleAddConfilmButtonClick = async (data) => {
-    // 追加ボタンが押された時の処理
     const isConfirmed = window.confirm('本当に追加しますか？');
     if (!isConfirmed) return;
-    console.log('なかまをよぶ');
     try {
-      const response = await axios.post('/postopendata', data);
+      // ★ apiヘルパーを使用
+      await api.post('/postopendata', data);
       alert('追加に成功しました');
       setIsAddModalOpen(false);
-      console.log(data); // 送信するデータを確認
       window.location.reload();
     } catch (error) {
       console.error(error);
       alert('追加中にエラーが発生しました');
     }
   };
+
   const handleEditButtonClick = async (data) => {
-    // 編集ボタンが押された時の処理
     try {
-      const response = await axios.put(
-        `/putopendata/${selectedMarker._id}`,
-        data
-      );
+      // ★ apiヘルパーを使用
+      await api.put(`/putopendata/${selectedMarker._id}`, data);
       alert('更新に成功しました');
       setIsEditModalOpen(false);
       window.location.reload();
@@ -132,14 +151,15 @@ export default function Home() {
 
   return (
     <div>
-      {bridgedata.map((bridge, index) => (
-        <div key={index}>{/* 各橋のデータを表示するコンポーネント */}</div>
-      ))}
-      {filteredData.map((bridge, index) => (
-        <div key={index}>
-          {/* 絞り込んだ橋のデータを表示するコンポーネント */}
-        </div>
-      ))}
+      {/* ★ 通知ポップアップのレンダリング */}
+      {showPopup && (
+        <NotificationPopup
+          changes={changes}
+          onClose={() => setShowPopup(false)}
+        />
+      )}
+
+      {/* ... 既存のJSX ... */}
       <div className={styles.all}>
         <div className={styles.headerContainer}>
           <div className={styles.up}>

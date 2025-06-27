@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios'; // axios をインポート
+import api from '../utils/api'; // ★ 修正: axiosの代わりにapiヘルパーをインポート
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // エラーメッセージ用
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleLogin = async (e) => { // async を追加
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError(''); // エラーメッセージをリセット
+    setError('');
 
     if (!username || !password) {
       setError('ユーザー名とパスワードを入力してください。');
@@ -18,26 +18,21 @@ const LoginPage = () => {
     }
 
     try {
-      // バックエンドのログインAPIを呼び出す
-      // 実際のAPIエンドポイントに合わせてURLを調整してください
-      const response = await axios.post('http://localhost:8000/api/auth/login', {
+      // ★ 修正: apiヘルパーを使用してリクエストを送信
+      const response = await api.post('/api/auth/login', {
         username,
         password,
       });
 
-      // ログイン成功時の処理
-      // バックエンドからのレスポンスに応じて、トークンを保存したり、
-      // ユーザー情報を取得したりする処理をここに追加できます。
       console.log('ログイン成功:', response.data);
 
-      // ログイン後のリダイレクト先を決定
-      // 例: バックエンドがユーザー種別を返す場合
-      // if (response.data.userType === 'admin') {
-      //   router.push('/main');
-      // } else {
-      //   router.push('/userpage');
-      // }
-      // 今回は一律で /main にリダイレクトします
+      // トークンとユーザー情報をlocalStorageに保存
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+
+      // 前回ログイン時刻を記録
+      localStorage.setItem('lastLogin', new Date().toISOString());
+
       router.push('/main');
 
     } catch (err) {
@@ -109,7 +104,7 @@ const styles = {
     color: '#8c7676',
   },
   title: {
-    marginBottom: '30px', // エラーメッセージ表示スペースを考慮
+    marginBottom: '30px',
     fontSize: '3em',
     marginTop: '-50px',
   },
@@ -123,15 +118,15 @@ const styles = {
   },
   label: {
     marginBottom: '5px',
-    display: 'block', // ラベルをブロック要素にして改行
-    textAlign: 'left', // ラベルを左寄せ
-    width: '100%',     // 幅をinputに合わせる
+    display: 'block',
+    textAlign: 'left',
+    width: '100%',
   },
   input: {
     padding: '10px',
     borderRadius: '5px',
     border: '1px solid #ccc',
-    width: '250px', // 幅を調整
+    width: '250px',
   },
   button: {
     padding: '10px 20px',
@@ -141,7 +136,7 @@ const styles = {
     borderRadius: '5px',
     outline: '1px solid #99f0ca',
     cursor: 'pointer',
-    minWidth: '150px', // ボタンの最小幅を調整
+    minWidth: '150px',
   },
 };
 
