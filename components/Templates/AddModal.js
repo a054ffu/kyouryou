@@ -48,12 +48,32 @@ const AddModal = ({ isOpen, onClose, onCancel, onConfirm }) => {
           value={formData._id}
           onChange={(e) => handleInputChange('_id', e.target.value)}
         />
-        <InputField
-          title="管理事務所"
-          label="ここに入力"
-          value={formData.Inspector}
-          onChange={(e) => handleInputChange('Inspector', e.target.value)}
-        />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ textAlign: 'left', marginRight: '8px' }}>管理事務所:</div>
+          <select
+            style={{ width: '62%', textAlign: 'left' }}
+            value={formData.Inspector}
+            onChange={(e) => handleInputChange('Inspector', e.target.value)}
+          >
+            <option value="" disabled>
+              選択してください
+            </option>
+            <option value="岩国土木建築事務所">岩国土木建築事務所</option>
+            <option value="宇部土木建築事務所">宇部土木建築事務所</option>
+            <option value="下関土木建築事務所">下関土木建築事務所</option>
+            <option value="周南土木建築事務所">周南土木建築事務所</option>
+            <option value="長門土木建築事務所">長門土木建築事務所</option>
+            <option value="萩土木建築事務所">萩土木建築事務所</option>
+            <option value="防府土木建築事務所">防府土木建築事務所</option>
+            <option value="柳井土木建築事務所">柳井土木建築事務所</option>
+          </select>
+        </div>
         <InputField
           title="電話番号"
           label="ここに入力"

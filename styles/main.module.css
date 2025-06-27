@@ -46,12 +46,10 @@
   margin-right: 1em;
 }
 
-
 .textStyle {
   text-align: left;
   color: #8c7676;
 }
-
 
 .fixedHeader {
   position: fixed;
@@ -87,4 +85,65 @@
   justify-content: space-around;
   align-items: center;
   margin-top: 1%;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.historyItem {
+  padding: 10px 0;
+}
+
+/* ✅ 追加: 修正前後比較テーブル */
+.tableContainer {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+  margin-bottom: 2em;
+}
+
+.row {
+  display: table-row;
+}
+
+.label {
+  display: table-cell;
+  font-weight: bold;
+  padding: 6px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  width: 20%;
+  color: #5e5e5e;
+  text-align: left;
+}
+
+.cell {
+  display: table-cell;
+  padding: 6px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  width: 40%;
+  text-align: left;
+}
+
+/* 修正前後の比較ヘッダー */
+.cellHeader {
+  display: table-cell;
+  padding: 6px;
+  font-weight: bold;
+  background-color: #fcefcf;
+  border: 1px solid #ccc;
+  text-align: center;
+  color: #5e5e5e;
+}
+
+/* 差分ハイライト */
+.diff {
+  background-color: #fff4e0;
+  font-weight: bold;
+  color: #a94442;
 }

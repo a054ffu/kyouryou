@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from './Button';
 
-const ConsoleWindow = ({ data, onEdit, onDelete }) => {
+const ConsoleWindow = ({ data, onEdit, disabled = false, onDelete }) => {
   const cellStyle = { backgroundColor: '#99f0ca' };
 
   return (
@@ -24,8 +24,8 @@ const ConsoleWindow = ({ data, onEdit, onDelete }) => {
             <td style={cellStyle}>{data.Name}</td>
             <td style={cellStyle}>{data.Id}</td>
             <td style={cellStyle}>
-              <Button text="修正" onClick={onEdit} />
-              <Button text="削除" onClick={onDelete} />
+              <Button text="修正" disabled={disabled} onClick={onEdit} />
+              <Button text="削除" disabled={disabled} onClick={onDelete} />
             </td>
           </tr>
         ) : (
