@@ -11,7 +11,7 @@ import EditModal from '../components/Templates/EditModal';
 import styles from '../styles/userpage.module.css';
 import NumberOfPins from '../components/Atoms/NumberOfPins';
 import TonnelButton from '../components/Molecules/TonnelButton';
-import Pulldowns_dis from '../components/Molecules/Pulldowns_dis';
+import Pulldowns from '../components/Molecules/Pulldowns';
 import HistoryButton from '../components/Molecules/HistoryButton';
 
 axios.defaults.baseURL = 'https://bridge-backend-09fde0d4fb8f.herokuapp.com/';
@@ -160,7 +160,7 @@ export default function Home() {
             <LogoutButton />
           </div>
           <div className={styles.down}>
-            <Pulldowns_dis data={bridgedata} onFilter={handleFilter} />
+            <Pulldowns data={bridgedata} onFilter={handleFilter} />
           </div>
         </div>
       </div>
