@@ -8,7 +8,8 @@ const LoginPage = () => {
   const [error, setError] = useState(''); // エラーメッセージ用
   const router = useRouter();
 
-  const handleLogin = async (e) => { // async を追加
+  const handleLogin = async (e) => {
+    // async を追加
     e.preventDefault();
     setError(''); // エラーメッセージをリセット
 
@@ -20,10 +21,13 @@ const LoginPage = () => {
     try {
       // バックエンドのログインAPIを呼び出す
       // 実際のAPIエンドポイントに合わせてURLを調整してください
-      const response = await axios.post('http://localhost:8000/api/auth/login', {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        'http://localhost:8000/api/auth/login',
+        {
+          username,
+          password,
+        }
+      );
 
       // ログイン成功時の処理
       // バックエンドからのレスポンスに応じて、トークンを保存したり、
@@ -39,7 +43,6 @@ const LoginPage = () => {
       // }
       // 今回は一律で /main にリダイレクトします
       router.push('/main');
-
     } catch (err) {
       console.error('ログインエラー:', err);
       if (err.response && err.response.data && err.response.data.message) {
@@ -89,7 +92,11 @@ const LoginPage = () => {
       </form>
       <button
         type="button"
-        style={{ ...styles.button, marginTop: '20px', backgroundColor: '#e0e0e0' }}
+        style={{
+          ...styles.button,
+          marginTop: '20px',
+          backgroundColor: '#e0e0e0',
+        }}
         onClick={() => router.push('/signup')}
       >
         新規アカウント登録
@@ -125,7 +132,7 @@ const styles = {
     marginBottom: '5px',
     display: 'block', // ラベルをブロック要素にして改行
     textAlign: 'left', // ラベルを左寄せ
-    width: '100%',     // 幅をinputに合わせる
+    width: '100%', // 幅をinputに合わせる
   },
   input: {
     padding: '10px',

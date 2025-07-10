@@ -32,7 +32,9 @@ const HistoryItem = ({ item, originalDataMap }) => {
   return (
     <div className={styles.historyItem}>
       <hr className={styles.horizontalLine} />
-      <p className={styles.textStyle}><strong>修正方法:</strong> {item.operation}</p>
+      <p className={styles.textStyle}>
+        <strong>修正方法:</strong> {item.operation}
+      </p>
 
       {isPut && before ? (
         <div className={styles.tableContainer}>
@@ -51,8 +53,16 @@ const HistoryItem = ({ item, originalDataMap }) => {
             return (
               <div className={styles.row} key={key}>
                 <div className={styles.label}>{label}</div>
-                <div className={`${styles.cell} ${isDifferent ? styles.diff : ''}`}>{prevValue}</div>
-                <div className={`${styles.cell} ${isDifferent ? styles.diff : ''}`}>{newValue}</div>
+                <div
+                  className={`${styles.cell} ${isDifferent ? styles.diff : ''}`}
+                >
+                  {prevValue}
+                </div>
+                <div
+                  className={`${styles.cell} ${isDifferent ? styles.diff : ''}`}
+                >
+                  {newValue}
+                </div>
               </div>
             );
           })}
@@ -83,8 +93,6 @@ const HistoryItem = ({ item, originalDataMap }) => {
     </div>
   );
 };
-
-
 
 const History = () => {
   const [historyData, setHistoryData] = useState([]);
@@ -129,7 +137,11 @@ const History = () => {
           <p className={styles.textStyle}>修正履歴はありません。</p>
         ) : (
           historyData.map((item, index) => (
-            <HistoryItem key={index} item={item} originalDataMap={originalDataMap} />
+            <HistoryItem
+              key={index}
+              item={item}
+              originalDataMap={originalDataMap}
+            />
           ))
         )}
       </div>
