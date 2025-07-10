@@ -74,7 +74,9 @@ const EditModal = ({ isOpen, onClose, onCancel, onConfirm, editData }) => {
             alignItems: 'center',
           }}
         >
-          <div style={{ textAlign: 'left', marginRight: '8px' }}>管理事務所:</div>
+          <div style={{ textAlign: 'left', marginRight: '8px' }}>
+            管理事務所:
+          </div>
           <select
             style={{ width: '62%', textAlign: 'left' }}
             value={formData.Inspector}

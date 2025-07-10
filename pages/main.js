@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/router'; // ★ useRouterをインポート
-import api from '../utils/api'; // ★ axiosの代わりにapiヘルパーをインポート
+import { useRouter } from 'next/router';
+import api from '../utils/api';
 import SearchBox from '../components/Atoms/SearchBox';
 import ResetButton from '../components/Molecules/ResetButton';
 import LogoutButton from '../components/Molecules/LogoutButton';
@@ -14,36 +14,34 @@ import NumberOfPins from '../components/Atoms/NumberOfPins';
 import TonnelButton from '../components/Molecules/TonnelButton';
 import Pulldowns from '../components/Molecules/Pulldowns';
 import HistoryButton from '../components/Molecules/HistoryButton';
-import NotificationPopup from '../components/Atoms/NotificationPopup'; // ★ パスを修正
+import NotificationPopup from '../components/Atoms/NotificationPopup';
 
 export default function Home() {
-  const router = useRouter(); // ★ useRouterフックを呼び出す
+  const router = useRouter();
   const [bridgedata, setBridgedata] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState(null);
   const selectedMarkerRef = useRef(selectedMarker);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  // ★ 通知機能用のState
   const [changes, setChanges] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
     selectedMarkerRef.current = selectedMarker;
   }, [selectedMarker]);
 
   useEffect(() => {
-    // ★ ログインユーザー情報を取得
     const currentUser = JSON.parse(localStorage.getItem('user'));
     if (!currentUser) {
-      // ログインしていなければログインページにリダイレクト
       router.push('/');
       return;
     }
+    setUsername(currentUser.username);
 
-    // 橋梁データを取得
-    api.get('/getopendata')
+    api
+      .get('/getopendata')
       .then((response) => {
         setBridgedata(response.data);
         setFilteredData(response.data);
@@ -52,33 +50,56 @@ export default function Home() {
         console.error('データの取得に失敗しました', error);
       });
 
-    // ★ 変更通知のロジック
-    const fetchChanges = async () => {
-      try {
-        const lastLogin = localStorage.getItem('lastLogin');
-        if (!lastLogin) return;
+    const checkNotifications = async () => {
+      const notificationCheckTime = localStorage.getItem(
+        'notificationCheckTime'
+      );
+      console.log('[Debug] Notification Check Time:', notificationCheckTime);
 
-        const response = await api.get('/gethistory');
+      if (notificationCheckTime && currentUser) {
+        localStorage.removeItem('notificationCheckTime');
 
-        // 他のユーザーによる、前回ログイン以降の変更をフィルタリング
-        const recentChangesByOthers = response.data.filter(
-          (item) =>
-            item.user &&
-            item.user._id !== currentUser.id &&
-            new Date(item.timestamp) > new Date(lastLogin)
-        );
+        try {
+          const response = await api.get('/gethistory');
+          console.log('[Debug] Full history response:', response.data);
 
-        if (recentChangesByOthers.length > 0) {
-          setChanges(recentChangesByOthers);
-          setShowPopup(true);
+          const recentChangesByOthers = response.data.filter((item) => {
+            const isOtherUser = item.user && item.user._id !== currentUser.id;
+            const previousLoginDate = new Date(notificationCheckTime);
+            const itemDate = new Date(item.timestamp);
+            const isRecent = itemDate > previousLoginDate;
+
+            // ★ 比較している実際の時刻をログに出力
+            console.log(
+              `[Debug] Comparing: itemDate (${itemDate.toISOString()}) > previousLoginDate (${previousLoginDate.toISOString()}) ==> ${isRecent}`
+            );
+
+            return isOtherUser && isRecent;
+          });
+
+          console.log(
+            '[Debug] Filtered changes by others:',
+            recentChangesByOthers
+          );
+
+          if (recentChangesByOthers.length > 0) {
+            console.log('[Debug] Setting popup to show.');
+            setChanges(recentChangesByOthers);
+            setShowPopup(true);
+          } else {
+            console.log('[Debug] No new changes by other users found.');
+          }
+        } catch (error) {
+          console.error('変更履歴の取得に失敗しました', error);
         }
-      } catch (error) {
-        console.error('変更履歴の取得に失敗しました', error);
+      } else {
+        console.log(
+          '[Debug] No notification check time found. Skipping notification check.'
+        );
       }
     };
 
-    fetchChanges();
-
+    checkNotifications();
   }, []);
 
   const handleSearch = (query) => {
@@ -108,7 +129,6 @@ export default function Home() {
     }
 
     try {
-      // ★ apiヘルパーを使用
       await api.delete(`/deleteopendata/${marker._id}`);
       setSelectedMarker(null);
       alert('削除に成功しました');
@@ -119,13 +139,10 @@ export default function Home() {
     }
   };
 
-  // ... useEffect for Delete key (変更なし)
-
   const handleAddConfilmButtonClick = async (data) => {
     const isConfirmed = window.confirm('本当に追加しますか？');
     if (!isConfirmed) return;
     try {
-      // ★ apiヘルパーを使用
       await api.post('/postopendata', data);
       alert('追加に成功しました');
       setIsAddModalOpen(false);
@@ -138,7 +155,6 @@ export default function Home() {
 
   const handleEditButtonClick = async (data) => {
     try {
-      // ★ apiヘルパーを使用
       await api.put(`/putopendata/${selectedMarker._id}`, data);
       alert('更新に成功しました');
       setIsEditModalOpen(false);
@@ -151,7 +167,6 @@ export default function Home() {
 
   return (
     <div>
-      {/* ★ 通知ポップアップのレンダリング */}
       {showPopup && (
         <NotificationPopup
           changes={changes}
@@ -159,11 +174,11 @@ export default function Home() {
         />
       )}
 
-      {/* ... 既存のJSX ... */}
       <div className={styles.all}>
         <div className={styles.headerContainer}>
           <div className={styles.up}>
             <h1 className={styles.header}>橋梁情報管理システム</h1>
+            <div className={styles.userInfo}>こんにちは、{username}さん</div>
             <SearchBox onSearch={handleSearch} />
             <div className={styles.Num}>
               <NumberOfPins count={filteredData.length} />

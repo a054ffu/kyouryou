@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import api from '../utils/api'; // ★ 修正: axiosの代わりにapiヘルパーをインポート
+import api from '../utils/api';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -18,7 +18,39 @@ const LoginPage = () => {
     }
 
     try {
-      // ★ 修正: apiヘルパーを使用してリクエストを送信
+      // --- ★ここからデバッグログを追加 ---
+      console.log(`[Login Debug] 1. Attempting login for user: "${username}"`);
+
+      const rawTimestamps = localStorage.getItem('loginTimestamps');
+      console.log(
+        '[Login Debug] 2. Raw loginTimestamps from localStorage:',
+        rawTimestamps
+      );
+
+      const loginTimestamps = JSON.parse(rawTimestamps) || {};
+      console.log(
+        '[Login Debug] 3. Parsed loginTimestamps object:',
+        loginTimestamps
+      );
+
+      const previousLoginTime = loginTimestamps[username];
+      console.log(
+        `[Login Debug] 4. Retrieved previous login time for "${username}":`,
+        previousLoginTime
+      );
+
+      if (previousLoginTime) {
+        console.log(
+          '[Login Debug] 5. Previous login time found. Setting notificationCheckTime.'
+        );
+        localStorage.setItem('notificationCheckTime', previousLoginTime);
+      } else {
+        console.log(
+          '[Login Debug] 5. No previous login time found for this user.'
+        );
+      }
+      // --- ★ここまでデバッグログ ---
+
       const response = await api.post('/api/auth/login', {
         username,
         password,
@@ -26,15 +58,19 @@ const LoginPage = () => {
 
       console.log('ログイン成功:', response.data);
 
-      // トークンとユーザー情報をlocalStorageに保存
+      // このユーザーの最終ログイン時刻を更新
+      loginTimestamps[username] = new Date().toISOString();
+      localStorage.setItem('loginTimestamps', JSON.stringify(loginTimestamps));
+      console.log(
+        '[Login Debug] 6. Saved updated loginTimestamps:',
+        localStorage.getItem('loginTimestamps')
+      );
+
+      // トークンとユーザー情報を保存
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      // 前回ログイン時刻を記録
-      localStorage.setItem('lastLogin', new Date().toISOString());
-
       router.push('/main');
-
     } catch (err) {
       console.error('ログインエラー:', err);
       if (err.response && err.response.data && err.response.data.message) {
@@ -84,7 +120,11 @@ const LoginPage = () => {
       </form>
       <button
         type="button"
-        style={{ ...styles.button, marginTop: '20px', backgroundColor: '#e0e0e0' }}
+        style={{
+          ...styles.button,
+          marginTop: '20px',
+          backgroundColor: '#e0e0e0',
+        }}
         onClick={() => router.push('/signup')}
       >
         新規アカウント登録
