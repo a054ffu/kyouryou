@@ -44,7 +44,6 @@ const MapComponent = ({ data, selected, onMarkerClick }) => {
             switch (item.Rank) {
               case 'Ⅰ':
                 return 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'; // 赤色
-              case 'Ⅱ':
                 return 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'; // 青色
               case 'Ⅲ':
                 return 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'; // 緑色
