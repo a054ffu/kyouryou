@@ -9,10 +9,6 @@ const LoginPage = () => {
   const router = useRouter();
 
   const handleLogin = async (e) => {
-<<<<<<< HEAD
-    // async を追加
-=======
->>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
     e.preventDefault();
     setError('');
 
@@ -22,17 +18,6 @@ const LoginPage = () => {
     }
 
     try {
-<<<<<<< HEAD
-      // バックエンドのログインAPIを呼び出す
-      // 実際のAPIエンドポイントに合わせてURLを調整してください
-      const response = await axios.post(
-        'http://localhost:8000/api/auth/login',
-        {
-          username,
-          password,
-        }
-      );
-=======
       // --- ★ここからデバッグログを追加 ---
       console.log(`[Login Debug] 1. Attempting login for user: "${username}"`);
 
@@ -70,20 +55,9 @@ const LoginPage = () => {
         username,
         password,
       });
->>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
 
       console.log('ログイン成功:', response.data);
 
-<<<<<<< HEAD
-      // ログイン後のリダイレクト先を決定
-      // 例: バックエンドがユーザー種別を返す場合
-      // if (response.data.userType === 'admin') {
-      //   router.push('/main');
-      // } else {
-      //   router.push('/userpage');
-      // }
-      // 今回は一律で /main にリダイレクトします
-=======
       // このユーザーの最終ログイン時刻を更新
       loginTimestamps[username] = new Date().toISOString();
       localStorage.setItem('loginTimestamps', JSON.stringify(loginTimestamps));
@@ -96,7 +70,6 @@ const LoginPage = () => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
->>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
       router.push('/main');
     } catch (err) {
       console.error('ログインエラー:', err);
@@ -185,15 +158,9 @@ const styles = {
   },
   label: {
     marginBottom: '5px',
-<<<<<<< HEAD
-    display: 'block', // ラベルをブロック要素にして改行
-    textAlign: 'left', // ラベルを左寄せ
-    width: '100%', // 幅をinputに合わせる
-=======
     display: 'block',
     textAlign: 'left',
     width: '100%',
->>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
   },
   input: {
     padding: '10px',
