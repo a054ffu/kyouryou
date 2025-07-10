@@ -32,14 +32,6 @@ const HistoryItem = ({ item, currentDataMap }) => {
     // 変更後のデータは、現在の最新のデータを参照する
     const dataAfter = currentDataMap[dataBefore._id] ?? {};
 
-<<<<<<< HEAD
-  return (
-    <div className={styles.historyItem}>
-      <hr className={styles.horizontalLine} />
-      <p className={styles.textStyle}>
-        <strong>修正方法:</strong> {item.operation}
-      </p>
-=======
     return (
       <div className={styles.historyItem}>
         <hr />
@@ -53,7 +45,6 @@ const HistoryItem = ({ item, currentDataMap }) => {
             {new Date(item.timestamp).toLocaleString('ja-JP')}
           </span>
         </p>
->>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
 
         <div className={styles.tableContainer}>
           {/* 比較テーブルのヘッダー */}
@@ -76,20 +67,12 @@ const HistoryItem = ({ item, currentDataMap }) => {
                 <div
                   className={`${styles.cell} ${isDifferent ? styles.diff : ''}`}
                 >
-<<<<<<< HEAD
-                  {prevValue}
-=======
                   {String(valueBefore)}
->>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
                 </div>
                 <div
                   className={`${styles.cell} ${isDifferent ? styles.diff : ''}`}
                 >
-<<<<<<< HEAD
-                  {newValue}
-=======
                   {String(valueAfter)}
->>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
                 </div>
               </div>
             );
@@ -128,14 +111,10 @@ const HistoryItem = ({ item, currentDataMap }) => {
   );
 };
 
-<<<<<<< HEAD
-const History = () => {
-=======
 /**
  * 修正履歴ページ全体
  */
 const HistoryPage = () => {
->>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
   const [historyData, setHistoryData] = useState([]);
   const [currentDataMap, setCurrentDataMap] = useState({});
   const [error, setError] = useState(null);
@@ -181,19 +160,11 @@ const HistoryPage = () => {
         {historyData.length === 0 && !error ? (
           <p className={styles.textStyle}>修正履歴はありません。</p>
         ) : (
-<<<<<<< HEAD
-          historyData.map((item, index) => (
-            <HistoryItem
-              key={index}
-              item={item}
-              originalDataMap={originalDataMap}
-=======
           historyData.map((item) => (
             <HistoryItem
               key={item._id}
               item={item}
               currentDataMap={currentDataMap}
->>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
             />
           ))
         )}
