@@ -5,10 +5,12 @@ import { useRouter } from 'next/router';
 function LogoutButton() {
   const router = useRouter();
   const handleClick = () => {
-    // ★ localStorageから認証情報を削除
+    // セッションに紐づく情報のみを削除
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('lastLogin');
+    localStorage.removeItem('notificationCheckTime');
+
+    // ユーザーごとのログイン履歴(loginTimestamps)は削除しない
 
     router.push('/');
   };

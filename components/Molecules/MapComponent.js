@@ -21,9 +21,23 @@ const MapComponent = ({ data, selected, onMarkerClick }) => {
         disableDefaultUI={true}
       >
         {data.map((item) => {
-          const [lat, lng] = item.Id.split(',').map((coord) =>
-            parseFloat(coord.trim())
-          );
+          // ★ データ検証を追加
+          if (!item || !item.Id || typeof item.Id !== 'string') {
+            return null; // 無効なデータの場合はマーカーをスキップ
+          }
+
+          const coords = item.Id.split(',');
+          if (coords.length !== 2) {
+            return null; // 座標の形式が不正な場合はスキップ
+          }
+
+          const lat = parseFloat(coords[0].trim());
+          const lng = parseFloat(coords[1].trim());
+
+          // ★ パース後の値が数値であるかを確認
+          if (isNaN(lat) || isNaN(lng)) {
+            return null; // 無効な座標の場合はマーカーをスキップ
+          }
 
           // Rankに応じてアイコンのURLを切り替える
           const iconUrl = (() => {
@@ -53,7 +67,6 @@ const MapComponent = ({ data, selected, onMarkerClick }) => {
 
         {selected && <InfoWindowContent selected={selected} />}
       </Map>
-      {/* <NumberOfPins count={data.length} /> */}
     </APIProvider>
   );
 };

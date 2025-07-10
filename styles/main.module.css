@@ -87,6 +87,15 @@
   margin-top: 1%;
 }
 
+.userInfo {
+  color: #8c7676;
+  font-weight: bold;
+  margin: 0 1em;
+  /* 周囲に余白を追加 */
+  white-space: nowrap;
+  /* 折り返しを防ぐ */
+}
+
 .error {
   color: red;
   font-weight: bold;
@@ -95,15 +104,17 @@
 
 .historyItem {
   padding: 10px 0;
+  margin-bottom: 2rem;
+  /* 各履歴アイテムの間に余白を追加 */
 }
 
-/* ✅ 追加: 修正前後比較テーブル */
 .tableContainer {
   display: table;
   width: 100%;
   border-collapse: collapse;
   margin-top: 1em;
-  margin-bottom: 2em;
+  table-layout: fixed;
+  /* テーブルのレイアウトを固定 */
 }
 
 .row {
@@ -113,37 +124,45 @@
 .label {
   display: table-cell;
   font-weight: bold;
-  padding: 6px;
-  background-color: #eee;
-  border: 1px solid #ccc;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
   width: 20%;
-  color: #5e5e5e;
+  color: #333;
   text-align: left;
+  vertical-align: top;
 }
 
 .cell {
   display: table-cell;
-  padding: 6px;
-  border: 1px solid #ccc;
+  padding: 8px;
+  border: 1px solid #ddd;
   background-color: #fff;
   width: 40%;
   text-align: left;
+  vertical-align: top;
+  word-wrap: break-word;
+  /* 長いテキストを折り返す */
 }
 
-/* 修正前後の比較ヘッダー */
+/* ★ POST/DELETE用の1列表示セルのスタイル */
+.fullWidthCell {
+  width: 80%;
+}
+
 .cellHeader {
   display: table-cell;
-  padding: 6px;
+  padding: 8px;
   font-weight: bold;
-  background-color: #fcefcf;
-  border: 1px solid #ccc;
+  background-color: #e9ecef;
+  border: 1px solid #ddd;
   text-align: center;
-  color: #5e5e5e;
+  color: #333;
 }
 
-/* 差分ハイライト */
+/* ★ 変更箇所をハイライトするスタイル */
 .diff {
-  background-color: #fff4e0;
-  font-weight: bold;
-  color: #a94442;
+  background-color: #fff3cd;
+  /* 薄い黄色 */
+  font-weight: 600;
 }

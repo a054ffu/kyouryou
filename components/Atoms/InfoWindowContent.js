@@ -5,6 +5,20 @@ import Button from './Button';
 const InfoWindowContent = ({ selected, onClose = () => {} }) => {
   const [showDetails, setShowDetails] = useState(false);
 
+  // ★ データ検証を追加
+  if (!selected || !selected.Id || typeof selected.Id !== 'string') {
+    return null; // 無効なデータの場合は何も表示しない
+  }
+  const coords = selected.Id.split(',');
+  if (coords.length !== 2) {
+    return null;
+  }
+  const lat = parseFloat(coords[0].trim());
+  const lng = parseFloat(coords[1].trim());
+  if (isNaN(lat) || isNaN(lng)) {
+    return null;
+  }
+
   const toggleDetails = () => {
     setShowDetails(!showDetails);
   };
@@ -15,13 +29,7 @@ const InfoWindowContent = ({ selected, onClose = () => {} }) => {
   };
 
   return (
-    <InfoWindow
-      position={{
-        lat: parseFloat(selected.Id.split(',')[0]),
-        lng: parseFloat(selected.Id.split(',')[1]),
-      }}
-      onCloseClick={handleCloseClick}
-    >
+    <InfoWindow position={{ lat, lng }} onCloseClick={handleCloseClick}>
       <div>
         <h3
           style={{
