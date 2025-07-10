@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import Home from './main';
 import styles from '../styles/main.module.css';
 import HomeButton from '../components/Molecules/HomeButton';
-import axios from 'axios';
+import api from '../utils/api';
 
-axios.defaults.baseURL = 'https://bridge-backend-09fde0d4fb8f.herokuapp.com/';
-
+// 履歴に表示する項目のリスト
 const fieldsToDisplay = [
   ['_id', 'ID'],
   ['Inspector', '管理事務所'],
@@ -24,31 +22,53 @@ const fieldsToDisplay = [
   ['Rank', '健全度'],
 ];
 
-const HistoryItem = ({ item, originalDataMap }) => {
-  const after = item.data ?? {};
-  const before = originalDataMap[after._id] ?? {};
-  const isPut = item.operation === 'PUT';
+/**
+ * 個々の履歴アイテムを表示するコンポーネント
+ */
+const HistoryItem = ({ item, currentDataMap }) => {
+  // 操作が 'PUT' (更新) の場合に比較表示を行う
+  if (item.operation === 'PUT') {
+    const dataBefore = item.data ?? {};
+    // 変更後のデータは、現在の最新のデータを参照する
+    const dataAfter = currentDataMap[dataBefore._id] ?? {};
 
+<<<<<<< HEAD
   return (
     <div className={styles.historyItem}>
       <hr className={styles.horizontalLine} />
       <p className={styles.textStyle}>
         <strong>修正方法:</strong> {item.operation}
       </p>
+=======
+    return (
+      <div className={styles.historyItem}>
+        <hr />
+        <p className={styles.textStyle}>
+          <strong>操作:</strong> {item.operation}
+          <span style={{ marginLeft: '20px' }}>
+            <strong>操作ユーザー:</strong> {item.user?.username || '不明'}
+          </span>
+          <span style={{ float: 'right' }}>
+            <strong>日時:</strong>{' '}
+            {new Date(item.timestamp).toLocaleString('ja-JP')}
+          </span>
+        </p>
+>>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
 
-      {isPut && before ? (
         <div className={styles.tableContainer}>
-          {/* ヘッダー行 */}
+          {/* 比較テーブルのヘッダー */}
           <div className={styles.row}>
-            <div className={styles.label}></div>
-            <div className={styles.cellHeader}>修正後</div>
-            <div className={styles.cellHeader}>修正前</div>
+            <div className={styles.label}>項目</div>
+            <div className={styles.cellHeader}>変更前</div>
+            <div className={styles.cellHeader}>変更後</div>
           </div>
 
+          {/* 各項目を比較して表示 */}
           {fieldsToDisplay.map(([key, label]) => {
-            const prevValue = before[key] ?? '―';
-            const newValue = after[key] ?? '―';
-            const isDifferent = prevValue !== newValue;
+            const valueBefore = dataBefore[key] ?? '―';
+            const valueAfter = dataAfter[key] ?? '―';
+            // 変更前と後で値が異なる場合に diff スタイルを適用
+            const isDifferent = String(valueBefore) !== String(valueAfter);
 
             return (
               <div className={styles.row} key={key}>
@@ -56,71 +76,97 @@ const HistoryItem = ({ item, originalDataMap }) => {
                 <div
                   className={`${styles.cell} ${isDifferent ? styles.diff : ''}`}
                 >
+<<<<<<< HEAD
                   {prevValue}
+=======
+                  {String(valueBefore)}
+>>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
                 </div>
                 <div
                   className={`${styles.cell} ${isDifferent ? styles.diff : ''}`}
                 >
+<<<<<<< HEAD
                   {newValue}
+=======
+                  {String(valueAfter)}
+>>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
                 </div>
               </div>
             );
           })}
         </div>
-      ) : (
-        <div className={styles.tableContainer}>
-          {fieldsToDisplay.map(([key, label]) => (
-            <div className={styles.row} key={key}>
-              <div className={styles.label}>{label}</div>
-              <div className={styles.cell}>{after[key] ?? '―'}</div>
-            </div>
-          ))}
-        </div>
-      )}
+      </div>
+    );
+  }
 
+  // 'POST' (新規作成) または 'DELETE' (削除) の場合の表示
+  return (
+    <div className={styles.historyItem}>
+      <hr />
       <p className={styles.textStyle}>
-        <strong>変更日時:</strong>{' '}
-        {new Date(item.timestamp).toLocaleString('ja-JP', {
-          timeZone: 'Asia/Tokyo',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        })}
+        <strong>操作:</strong> {item.operation}
+        <span style={{ marginLeft: '20px' }}>
+          <strong>操作ユーザー:</strong> {item.user?.username || '不明'}
+        </span>
+        <span style={{ float: 'right' }}>
+          <strong>日時:</strong>{' '}
+          {new Date(item.timestamp).toLocaleString('ja-JP')}
+        </span>
       </p>
+      <div className={styles.tableContainer}>
+        {fieldsToDisplay.map(([key, label]) => (
+          <div className={styles.row} key={key}>
+            <div className={styles.label}>{label}</div>
+            {/* 1列で内容を表示 */}
+            <div className={`${styles.cell} ${styles.fullWidthCell}`}>
+              {String(item.data[key] ?? '―')}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
+<<<<<<< HEAD
 const History = () => {
+=======
+/**
+ * 修正履歴ページ全体
+ */
+const HistoryPage = () => {
+>>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
   const [historyData, setHistoryData] = useState([]);
-  const [originalDataMap, setOriginalDataMap] = useState({});
+  const [currentDataMap, setCurrentDataMap] = useState({});
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchHistoryAndOriginals = async () => {
+    const fetchHistoryAndCurrentData = async () => {
       try {
-        const [historyRes, originalRes] = await Promise.all([
-          axios.get('/gethistory'),
-          axios.get('/getopendata'),
+        // 履歴データと、比較対象となる最新の橋梁データを両方取得
+        const [historyRes, currentDataRes] = await Promise.all([
+          api.get('/gethistory'),
+          api.get('/getopendata'),
         ]);
 
-        setHistoryData(historyRes.data);
+        const sortedHistory = historyRes.data.sort(
+          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+        );
+        setHistoryData(sortedHistory);
 
+        // 最新の橋梁データをIDをキーにしたマップ形式に変換し、比較しやすくする
         const map = {};
-        originalRes.data.forEach((item) => {
+        currentDataRes.data.forEach((item) => {
           map[item._id] = item;
         });
-        setOriginalDataMap(map);
+        setCurrentDataMap(map);
       } catch (err) {
         console.error('データの取得に失敗しました', err);
         setError('データの取得に失敗しました。');
       }
     };
 
-    fetchHistoryAndOriginals();
+    fetchHistoryAndCurrentData();
   }, []);
 
   return (
@@ -132,15 +178,22 @@ const History = () => {
 
       <div className={styles.content}>
         {error && <p className={styles.error}>{error}</p>}
-
         {historyData.length === 0 && !error ? (
           <p className={styles.textStyle}>修正履歴はありません。</p>
         ) : (
+<<<<<<< HEAD
           historyData.map((item, index) => (
             <HistoryItem
               key={index}
               item={item}
               originalDataMap={originalDataMap}
+=======
+          historyData.map((item) => (
+            <HistoryItem
+              key={item._id}
+              item={item}
+              currentDataMap={currentDataMap}
+>>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
             />
           ))
         )}
@@ -149,4 +202,4 @@ const History = () => {
   );
 };
 
-export default History;
+export default HistoryPage;

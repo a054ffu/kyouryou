@@ -5,6 +5,7 @@ import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import DeleteModal from '../Templates/DeleteModal';
+import api from '../../utils/api';
 
 const currentYear = new Date().getFullYear();
 
@@ -153,16 +154,13 @@ const Pulldowns = ({ data, onFilter }) => {
         // 各行を個別にPOSTリクエストで送信
         for (const row of json) {
           try {
-            const response = await axios.post('/postopendata', row);
+            const response = await api.post('/postopendata', row); // axiosをapiに変更
             console.log('送信されたデータ:', response.data);
           } catch (error) {
             if (error.response.status === 409) {
               // Assuming 409 Conflict for existing data
               try {
-                const response = await axios.put(
-                  `/putopendata/${row._id}`,
-                  row
-                );
+                const response = await api.put(`/putopendata/${row._id}`, row); // axiosをapiに変更
                 console.log('データが更新されました:', response.data);
               } catch (putError) {
                 console.error(

@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios'; // axios をインポート
+import api from '../utils/api';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // エラーメッセージ用
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleLogin = async (e) => {
+<<<<<<< HEAD
     // async を追加
+=======
+>>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
     e.preventDefault();
-    setError(''); // エラーメッセージをリセット
+    setError('');
 
     if (!username || !password) {
       setError('ユーザー名とパスワードを入力してください。');
@@ -19,6 +22,7 @@ const LoginPage = () => {
     }
 
     try {
+<<<<<<< HEAD
       // バックエンドのログインAPIを呼び出す
       // 実際のAPIエンドポイントに合わせてURLを調整してください
       const response = await axios.post(
@@ -28,12 +32,49 @@ const LoginPage = () => {
           password,
         }
       );
+=======
+      // --- ★ここからデバッグログを追加 ---
+      console.log(`[Login Debug] 1. Attempting login for user: "${username}"`);
 
-      // ログイン成功時の処理
-      // バックエンドからのレスポンスに応じて、トークンを保存したり、
-      // ユーザー情報を取得したりする処理をここに追加できます。
+      const rawTimestamps = localStorage.getItem('loginTimestamps');
+      console.log(
+        '[Login Debug] 2. Raw loginTimestamps from localStorage:',
+        rawTimestamps
+      );
+
+      const loginTimestamps = JSON.parse(rawTimestamps) || {};
+      console.log(
+        '[Login Debug] 3. Parsed loginTimestamps object:',
+        loginTimestamps
+      );
+
+      const previousLoginTime = loginTimestamps[username];
+      console.log(
+        `[Login Debug] 4. Retrieved previous login time for "${username}":`,
+        previousLoginTime
+      );
+
+      if (previousLoginTime) {
+        console.log(
+          '[Login Debug] 5. Previous login time found. Setting notificationCheckTime.'
+        );
+        localStorage.setItem('notificationCheckTime', previousLoginTime);
+      } else {
+        console.log(
+          '[Login Debug] 5. No previous login time found for this user.'
+        );
+      }
+      // --- ★ここまでデバッグログ ---
+
+      const response = await api.post('/api/auth/login', {
+        username,
+        password,
+      });
+>>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
+
       console.log('ログイン成功:', response.data);
 
+<<<<<<< HEAD
       // ログイン後のリダイレクト先を決定
       // 例: バックエンドがユーザー種別を返す場合
       // if (response.data.userType === 'admin') {
@@ -42,6 +83,20 @@ const LoginPage = () => {
       //   router.push('/userpage');
       // }
       // 今回は一律で /main にリダイレクトします
+=======
+      // このユーザーの最終ログイン時刻を更新
+      loginTimestamps[username] = new Date().toISOString();
+      localStorage.setItem('loginTimestamps', JSON.stringify(loginTimestamps));
+      console.log(
+        '[Login Debug] 6. Saved updated loginTimestamps:',
+        localStorage.getItem('loginTimestamps')
+      );
+
+      // トークンとユーザー情報を保存
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+
+>>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
       router.push('/main');
     } catch (err) {
       console.error('ログインエラー:', err);
@@ -116,7 +171,7 @@ const styles = {
     color: '#8c7676',
   },
   title: {
-    marginBottom: '30px', // エラーメッセージ表示スペースを考慮
+    marginBottom: '30px',
     fontSize: '3em',
     marginTop: '-50px',
   },
@@ -130,15 +185,21 @@ const styles = {
   },
   label: {
     marginBottom: '5px',
+<<<<<<< HEAD
     display: 'block', // ラベルをブロック要素にして改行
     textAlign: 'left', // ラベルを左寄せ
     width: '100%', // 幅をinputに合わせる
+=======
+    display: 'block',
+    textAlign: 'left',
+    width: '100%',
+>>>>>>> a3755153b18f213484fb891de0f8d4915c16fb92
   },
   input: {
     padding: '10px',
     borderRadius: '5px',
     border: '1px solid #ccc',
-    width: '250px', // 幅を調整
+    width: '250px',
   },
   button: {
     padding: '10px 20px',
@@ -148,7 +209,7 @@ const styles = {
     borderRadius: '5px',
     outline: '1px solid #99f0ca',
     cursor: 'pointer',
-    minWidth: '150px', // ボタンの最小幅を調整
+    minWidth: '150px',
   },
 };
 

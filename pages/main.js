@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
+import api from '../utils/api';
 import SearchBox from '../components/Atoms/SearchBox';
 import ResetButton from '../components/Molecules/ResetButton';
 import LogoutButton from '../components/Molecules/LogoutButton';
 import ConsoleWindow from '../components/Atoms/ConsoleWindow';
 import MapConponent from '../components/Molecules/MapComponent';
 import Button from '../components/Atoms/Button';
-import axios from 'axios';
 import AddModal from '../components/Templates/AddModal';
 import EditModal from '../components/Templates/EditModal';
 import styles from '../styles/main.module.css';
@@ -13,25 +14,33 @@ import NumberOfPins from '../components/Atoms/NumberOfPins';
 import TonnelButton from '../components/Molecules/TonnelButton';
 import Pulldowns from '../components/Molecules/Pulldowns';
 import HistoryButton from '../components/Molecules/HistoryButton';
-
-axios.defaults.baseURL = 'https://bridge-backend-09fde0d4fb8f.herokuapp.com/';
-// axios.defaults.baseURL = 'http://localhost:8000/';
+import NotificationPopup from '../components/Atoms/NotificationPopup';
 
 export default function Home() {
-  const [bridgedata, setBridgedata] = useState([]); // 橋梁データ
-  const [filteredData, setFilteredData] = useState([]); // 絞り込んだ橋のデータ
-  const [selectedMarker, setSelectedMarker] = useState(null); // 選択されたマーカーのデータ
+  const router = useRouter();
+  const [bridgedata, setBridgedata] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [selectedMarker, setSelectedMarker] = useState(null);
   const selectedMarkerRef = useRef(selectedMarker);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false); // 追加モーダルの表示状態
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // 編集モーダルの表示状態
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [changes, setChanges] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
     selectedMarkerRef.current = selectedMarker;
   }, [selectedMarker]);
 
   useEffect(() => {
-    // ページが読み込まれた時にデータを取得する
-    axios
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    if (!currentUser) {
+      router.push('/');
+      return;
+    }
+    setUsername(currentUser.username);
+
+    api
       .get('/getopendata')
       .then((response) => {
         setBridgedata(response.data);
@@ -40,10 +49,60 @@ export default function Home() {
       .catch((error) => {
         console.error('データの取得に失敗しました', error);
       });
+
+    const checkNotifications = async () => {
+      const notificationCheckTime = localStorage.getItem(
+        'notificationCheckTime'
+      );
+      console.log('[Debug] Notification Check Time:', notificationCheckTime);
+
+      if (notificationCheckTime && currentUser) {
+        localStorage.removeItem('notificationCheckTime');
+
+        try {
+          const response = await api.get('/gethistory');
+          console.log('[Debug] Full history response:', response.data);
+
+          const recentChangesByOthers = response.data.filter((item) => {
+            const isOtherUser = item.user && item.user._id !== currentUser.id;
+            const previousLoginDate = new Date(notificationCheckTime);
+            const itemDate = new Date(item.timestamp);
+            const isRecent = itemDate > previousLoginDate;
+
+            // ★ 比較している実際の時刻をログに出力
+            console.log(
+              `[Debug] Comparing: itemDate (${itemDate.toISOString()}) > previousLoginDate (${previousLoginDate.toISOString()}) ==> ${isRecent}`
+            );
+
+            return isOtherUser && isRecent;
+          });
+
+          console.log(
+            '[Debug] Filtered changes by others:',
+            recentChangesByOthers
+          );
+
+          if (recentChangesByOthers.length > 0) {
+            console.log('[Debug] Setting popup to show.');
+            setChanges(recentChangesByOthers);
+            setShowPopup(true);
+          } else {
+            console.log('[Debug] No new changes by other users found.');
+          }
+        } catch (error) {
+          console.error('変更履歴の取得に失敗しました', error);
+        }
+      } else {
+        console.log(
+          '[Debug] No notification check time found. Skipping notification check.'
+        );
+      }
+    };
+
+    checkNotifications();
   }, []);
 
   const handleSearch = (query) => {
-    // 検索ワードに一致するデータを絞り込む
     const filtered = bridgedata.filter((item) => item.Name.includes(query));
     setFilteredData(filtered);
     if (filtered.length === 0) {
@@ -56,12 +115,10 @@ export default function Home() {
   };
 
   const handleMarkerClick = (item) => {
-    // マーカーがクリックされた時の処理
     setSelectedMarker(item);
   };
 
   const handleDeleteButtonClick = async () => {
-    // 削除ボタンが押された時の処理
     const isConfirmed = window.confirm('本当に削除しますか？');
     if (!isConfirmed) return;
 
@@ -71,11 +128,8 @@ export default function Home() {
       return;
     }
 
-    console.log('ニフラム');
     try {
-      const response = await axios.delete(`/deleteopendata/${marker._id}`, {
-        method: 'DELETE',
-      });
+      await api.delete(`/deleteopendata/${marker._id}`);
       setSelectedMarker(null);
       alert('削除に成功しました');
       window.location.reload();
@@ -85,42 +139,23 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Delete' || event.key === 'Del') {
-        handleDeleteButtonClick();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
   const handleAddConfilmButtonClick = async (data) => {
-    // 追加ボタンが押された時の処理
     const isConfirmed = window.confirm('本当に追加しますか？');
     if (!isConfirmed) return;
-    console.log('なかまをよぶ');
     try {
-      const response = await axios.post('/postopendata', data);
+      await api.post('/postopendata', data);
       alert('追加に成功しました');
       setIsAddModalOpen(false);
-      console.log(data); // 送信するデータを確認
       window.location.reload();
     } catch (error) {
       console.error(error);
       alert('追加中にエラーが発生しました');
     }
   };
+
   const handleEditButtonClick = async (data) => {
-    // 編集ボタンが押された時の処理
     try {
-      const response = await axios.put(
-        `/putopendata/${selectedMarker._id}`,
-        data
-      );
+      await api.put(`/putopendata/${selectedMarker._id}`, data);
       alert('更新に成功しました');
       setIsEditModalOpen(false);
       window.location.reload();
@@ -132,18 +167,18 @@ export default function Home() {
 
   return (
     <div>
-      {bridgedata.map((bridge, index) => (
-        <div key={index}>{/* 各橋のデータを表示するコンポーネント */}</div>
-      ))}
-      {filteredData.map((bridge, index) => (
-        <div key={index}>
-          {/* 絞り込んだ橋のデータを表示するコンポーネント */}
-        </div>
-      ))}
+      {showPopup && (
+        <NotificationPopup
+          changes={changes}
+          onClose={() => setShowPopup(false)}
+        />
+      )}
+
       <div className={styles.all}>
         <div className={styles.headerContainer}>
           <div className={styles.up}>
             <h1 className={styles.header}>橋梁情報管理システム</h1>
+            <div className={styles.userInfo}>こんにちは、{username}さん</div>
             <SearchBox onSearch={handleSearch} />
             <div className={styles.Num}>
               <NumberOfPins count={filteredData.length} />
