@@ -11,7 +11,6 @@ import AddModal from '../components/Templates/AddModal';
 import EditModal from '../components/Templates/EditModal';
 import styles from '../styles/main.module.css';
 import NumberOfPins from '../components/Atoms/NumberOfPins';
-import TonnelButton from '../components/Molecules/TonnelButton';
 import Pulldowns from '../components/Molecules/Pulldowns';
 import HistoryButton from '../components/Molecules/HistoryButton';
 import NotificationPopup from '../components/Atoms/NotificationPopup';
@@ -185,7 +184,6 @@ export default function Home() {
             </div>
             <div className={styles.button} />
             <ResetButton />
-            <TonnelButton />
             <Button
               onClick={() => setIsAddModalOpen(true)}
               text="新しい橋梁の追加"
