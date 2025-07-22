@@ -23,9 +23,41 @@ const fieldsToDisplay = [
 ];
 
 /**
+ * 復元ボタンのコンポーネント
+ */
+const RestoreButton = ({ onClick }) => (
+  <button onClick={onClick} style={{ marginTop: '10px', padding: '5px 10px' }}>
+    この状態に復元
+  </button>
+);
+
+/**
  * 個々の履歴アイテムを表示するコンポーネント
  */
 const HistoryItem = ({ item, currentDataMap }) => {
+  const handleRestore = async () => {
+    // 復元の確認
+    if (!window.confirm('この状態に復元しますか？')) {
+      return;
+    }
+
+    try {
+      const restoreData = item.data;
+      if (item.operation === 'PUT') {
+        // 更新の場合は、IDを指定してデータを上書き
+        await api.put(`/putopendata/${restoreData._id}`, restoreData);
+      } else if (item.operation === 'DELETE') {
+        // 削除の場合は、再度データを登録
+        await api.post('/postopendata', restoreData);
+      }
+      alert('データの復元に成功しました。');
+      window.location.reload(); // ページをリロードして変更を反映
+    } catch (error) {
+      console.error('データの復元中にエラーが発生しました:', error);
+      alert('データの復元中にエラーが発生しました。');
+    }
+  };
+
   // 操作が 'PUT' (更新) の場合に比較表示を行う
   if (item.operation === 'PUT') {
     const dataBefore = item.data ?? {};
@@ -78,11 +110,13 @@ const HistoryItem = ({ item, currentDataMap }) => {
             );
           })}
         </div>
+        <RestoreButton onClick={handleRestore} />
       </div>
     );
   }
 
   // 'POST' (新規作成) または 'DELETE' (削除) の場合の表示
+  const data = item.data ?? {};
   return (
     <div className={styles.historyItem}>
       <hr />
@@ -102,14 +136,17 @@ const HistoryItem = ({ item, currentDataMap }) => {
             <div className={styles.label}>{label}</div>
             {/* 1列で内容を表示 */}
             <div className={`${styles.cell} ${styles.fullWidthCell}`}>
-              {String(item.data[key] ?? '―')}
+              {String(data[key] ?? '―')}
             </div>
           </div>
         ))}
       </div>
+      {/* 削除操作の場合のみ復元ボタンを表示 */}
+      {item.operation === 'DELETE' && <RestoreButton onClick={handleRestore} />}
     </div>
   );
 };
+
 
 /**
  * 修正履歴ページ全体

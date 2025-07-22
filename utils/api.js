@@ -1,24 +1,26 @@
 import axios from 'axios';
 
-// axiosのインスタンスを作成
+// baseURLを設定しておくと、api.get('/gethistory') のように短いパスで記述できます
 const api = axios.create({
-    // 環境変数からAPIのベースURLを取得
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    baseURL: process.env.NEXT_PUBLIC_API_URL
 });
 
-// リクエストインターセプターを追加
+// Axiosのインターセプター（リクエストを送信する前に行う共通処理）を設定
 api.interceptors.request.use(
     (config) => {
-        // localStorageからトークンを取得
-        const token = localStorage.getItem('token');
+        // localStorageなどから認証トークンを取得します
+        const token = localStorage.getItem('token'); // 'token'はトークンを保存しているキー名です
+
+        // トークンが存在すれば、リクエストヘッダーにAuthorizationヘッダーを追加
         if (token) {
-            // トークンが存在すれば、Authorizationヘッダーに設定
+            // 'Bearer ' スキームは一般的ですが、APIの仕様に合わせてください
             config.headers['Authorization'] = `Bearer ${token}`;
         }
+
         return config;
     },
     (error) => {
-        // リクエストエラーの処理
+        // リクエスト設定でエラーが発生した場合の処理
         return Promise.reject(error);
     }
 );
