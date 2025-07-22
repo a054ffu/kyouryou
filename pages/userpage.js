@@ -12,6 +12,7 @@ import styles from '../styles/userpage.module.css';
 import NumberOfPins from '../components/Atoms/NumberOfPins';
 import Pulldowns from '../components/Molecules/Pulldowns';
 import HistoryButton from '../components/Molecules/HistoryButton';
+import TonnelButton from '../components/Molecules/TonnelButton';
 
 axios.defaults.baseURL = 'https://bridge-backend-09fde0d4fb8f.herokuapp.com/';
 //axios.defaults.baseURL = 'http://localhost:8000/';
