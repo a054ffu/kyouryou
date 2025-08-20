@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios'; // axios をインポート
+import api from '../utils/api';
 
 const SignupPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [nickname, setNickname] = useState('');
   const [error, setError] = useState(''); // エラーメッセージ用
   const router = useRouter();
 
@@ -12,19 +13,20 @@ const SignupPage = () => {
     e.preventDefault();
     setError(''); // エラーメッセージをリセット
 
-    if (!username || !password) {
-      setError('ユーザー名とパスワードを入力してください。');
+    if (!username || !password || !nickname) {
+      setError('ユーザー名、パスワード、ニックネームを入力してください。');
       return;
     }
 
     try {
       // ここでバックエンドの新規登録APIを呼び出します。
-      await axios.post('http://localhost:8000/api/auth/signup', {
+      await api.post('/api/auth/signup', {
         username,
         password,
+        nickname,
       });
       // 上記URLは実際のAPIエンドポイントに置き換えてください。
-      console.log('新規登録試行:', { username, password });
+      console.log('新規登録試行:', { username, password, nickname });
       alert(
         '新規登録リクエストを送信しました。\n（実際の登録処理はバックエンドに実装が必要です）'
       );
@@ -97,6 +99,19 @@ const SignupPage = () => {
             id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            style={styles.input}
+            required
+          />
+        </div>
+        <div style={styles.inputGroup}>
+          <label htmlFor="nickname" style={styles.label}>
+            ニックネーム:
+          </label>
+          <input
+            type="text"
+            id="nickname"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
             style={styles.input}
             required
           />

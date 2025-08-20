@@ -25,7 +25,7 @@ export default function Home() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [changes, setChanges] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
-  const [username, setUsername] = useState('');
+  const [nickname, setNickname] = useState('');
 
   useEffect(() => {
     selectedMarkerRef.current = selectedMarker;
@@ -37,7 +37,7 @@ export default function Home() {
       router.push('/');
       return;
     }
-    setUsername(currentUser.username);
+    setNickname(currentUser.nickname);
 
     api
       .get('/getopendata')
@@ -177,7 +177,7 @@ export default function Home() {
         <div className={styles.headerContainer}>
           <div className={styles.up}>
             <h1 className={styles.header}>橋梁情報管理システム</h1>
-            <div className={styles.userInfo}>こんにちは、{username}さん</div>
+            <div className={styles.userInfo}>こんにちは、{nickname}さん</div>
             <SearchBox onSearch={handleSearch} />
             <div className={styles.Num}>
               <NumberOfPins count={filteredData.length} />

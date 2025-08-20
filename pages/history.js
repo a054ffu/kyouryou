@@ -70,7 +70,7 @@ const HistoryItem = ({ item, currentDataMap }) => {
         <p className={styles.textStyle}>
           <strong>操作:</strong> {item.operation}
           <span style={{ marginLeft: '20px' }}>
-            <strong>操作ユーザー:</strong> {item.user?.username || '不明'}
+            <strong>操作ユーザー:</strong> {item.user?.nickname || '不明'}
           </span>
           <span style={{ float: 'right' }}>
             <strong>日時:</strong>{' '}
@@ -123,7 +123,7 @@ const HistoryItem = ({ item, currentDataMap }) => {
       <p className={styles.textStyle}>
         <strong>操作:</strong> {item.operation}
         <span style={{ marginLeft: '20px' }}>
-          <strong>操作ユーザー:</strong> {item.user?.username || '不明'}
+          <strong>操作ユーザー:</strong> {item.user?.nickname || '不明'}
         </span>
         <span style={{ float: 'right' }}>
           <strong>日時:</strong>{' '}
